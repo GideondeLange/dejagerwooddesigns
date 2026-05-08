@@ -32,7 +32,7 @@
   --ff-body:    'Inter', sans-serif;
 
   /* Layout */
-  --header-height:  72px;
+  --header-height:  120px;
   --section-py:     clamp(4rem, 8vw, 8rem);
   --section-px:     clamp(1.25rem, 5vw, 4rem);
   --container-max:  1200px;
@@ -202,25 +202,11 @@ p  { font-size: clamp(0.95rem, 1.5vw, 1.05rem); }
   flex-shrink: 0;
 }
 .logo-img {
-  height: 40px;
+  height: 100px;   /* 3.5× the original 40px — logo PNG includes brand text */
   width: auto;
 }
-.logo-text {
-  font-family: var(--ff-display);
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--clr-text-primary);
-  line-height: 1.2;
-}
-.logo-text span {
-  display: block;
-  font-size: 0.65rem;
-  font-family: var(--ff-body);
-  font-weight: 400;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--clr-text-tertiary);
-}
+/* Brand text hidden — the logo image already contains the wordmark */
+.logo-text { display: none; }
 
 /* Desktop Nav */
 .site-nav {
@@ -1307,6 +1293,8 @@ html.is-animating .transition-fade { opacity: 0; transform: translateY(12px); }
 }
 
 @media (max-width: 640px) {
+  :root { --header-height: 80px; }
+  .logo-img { height: 60px; }
   .site-nav { display: none; }
   .hamburger { display: flex; }
   .hero-title { font-size: clamp(2.4rem, 9vw, 3.5rem); }
