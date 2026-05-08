@@ -37,20 +37,22 @@ swup.hooks.on('page:view', () => {
   initPage()
 })
 
-/* ── HEADER SCROLL STATE ────────────────────────────────────── */
+/* ── HEADER SCROLL STATE (init once — header is outside #swup) ── */
 function initHeader() {
   const header = document.querySelector('.site-header')
-  if (!header) return
+  if (!header || header.dataset.headerInit) return
+  header.dataset.headerInit = 'true'
   const toggle = () => header.classList.toggle('scrolled', window.scrollY > 20)
   toggle()
   window.addEventListener('scroll', toggle, { passive: true })
 }
 
-/* ── MOBILE NAV ─────────────────────────────────────────────── */
+/* ── MOBILE NAV (init once — nav drawer is outside #swup) ───── */
 function initMobileNav() {
   const hamburger = document.querySelector('.hamburger')
   const mobileNav = document.querySelector('.mobile-nav')
-  if (!hamburger || !mobileNav) return
+  if (!hamburger || !mobileNav || hamburger.dataset.navInit) return
+  hamburger.dataset.navInit = 'true'
 
   hamburger.addEventListener('click', () => {
     const isOpen = hamburger.classList.toggle('open')
@@ -58,6 +60,7 @@ function initMobileNav() {
     document.body.style.overflow = isOpen ? 'hidden' : ''
   })
 
+  // Close drawer when any nav link is clicked (Swup handles the navigation)
   mobileNav.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       hamburger.classList.remove('open')
@@ -81,7 +84,6 @@ function initHeroAnimation() {
   const heroTitle = document.querySelector('.hero-title')
   if (!heroTitle) return
 
-  // Word-by-word split
   const raw = heroTitle.dataset.text || heroTitle.textContent.trim()
   heroTitle.innerHTML = raw
     .split(' ')
@@ -99,7 +101,6 @@ function initHeroAnimation() {
 
 /* ── SCROLL REVEALS ─────────────────────────────────────────── */
 function initScrollReveals() {
-  // Single elements
   gsap.utils.toArray('.reveal').forEach(el => {
     gsap.fromTo(el,
       { opacity: 0, y: 44 },
@@ -110,7 +111,6 @@ function initScrollReveals() {
     )
   })
 
-  // Groups (staggered)
   gsap.utils.toArray('.reveal-group').forEach(group => {
     const items = group.querySelectorAll('.glass-card, .process-step, .stat-item, .why-card, .specialist-card')
     if (!items.length) return
@@ -147,7 +147,8 @@ function initCinematicParallax() {
         y: '-14%', ease: 'none',
         scrollTrigger: {
           trigger: img.closest('.cinematic-single, .cinematic-pair-item'),
-          start: 'top bottom', end: 'bottom top', scrub: 0.8
+          start: 'top bottom', end: 'bottom top', scrub: 0.6,
+          invalidateOnRefresh: true,
         }
       }
     )
@@ -155,22 +156,30 @@ function initCinematicParallax() {
 }
 
 /* ── HERO PHOTO PARALLAX (desktop only) ─────────────────────── */
+// Store the handler so we can remove it before re-attaching on page revisit
+let _heroParallaxHandler = null
+
 function initHeroParallax() {
+  // Always remove old handler first (prevents stacking on page:view)
+  if (_heroParallaxHandler) {
+    window.removeEventListener('scroll', _heroParallaxHandler)
+    _heroParallaxHandler = null
+  }
+
   const heroImg     = document.querySelector('.hero-photo-col img')
   const heroSection = document.querySelector('.hero')
   if (!heroImg || !heroSection || window.innerWidth <= 860) return
 
   const onScroll = () => {
     const sectionH = heroSection.offsetHeight
-    // How far the section has scrolled past the top (0 = at top, 1 = fully off-screen)
     const progress = Math.max(0, Math.min(1, -heroSection.getBoundingClientRect().top / sectionH))
-    // Buffer matches the 18% CSS top offset — image travels from 0 → -buffer as section scrolls away
-    const buffer = heroImg.parentElement.offsetHeight * 0.18
+    const buffer   = heroImg.parentElement.offsetHeight * 0.18
     heroImg.style.transform = `translateY(${-(progress * buffer)}px)`
   }
 
-  window.addEventListener('scroll', onScroll, { passive: true })
-  onScroll() // set correct position on load
+  _heroParallaxHandler = onScroll
+  window.addEventListener('scroll', _heroParallaxHandler, { passive: true })
+  onScroll()
 }
 
 /* ── COUNTER ANIMATION ──────────────────────────────────────── */
@@ -193,7 +202,14 @@ function initCounters() {
 
 /* ── GALLERY MASONRY STAGGER ────────────────────────────────── */
 function initGalleryAnimations() {
-  gsap.utils.toArray('.gallery-masonry-item').forEach((item) => {
+  const items = gsap.utils.toArray('.gallery-masonry-item')
+  if (!items.length) return
+
+  // Immediately hide all items — prevents the flash where items are visible
+  // for the brief moment between Swup inserting content and GSAP running
+  gsap.set(items, { opacity: 0, y: 32, scale: 0.97 })
+
+  items.forEach(item => {
     gsap.fromTo(item,
       { opacity: 0, y: 32, scale: 0.97 },
       {
@@ -205,10 +221,14 @@ function initGalleryAnimations() {
 }
 
 /* ── MARQUEE ────────────────────────────────────────────────── */
+let _marqueeTween = null
+
 function initMarquee() {
   const inner = document.querySelector('.marquee-inner')
   if (!inner) return
-  gsap.to(inner, {
+  // Kill previous tween before creating a new one (prevents stacking)
+  if (_marqueeTween) { _marqueeTween.kill(); _marqueeTween = null }
+  _marqueeTween = gsap.to(inner, {
     xPercent: -50,
     ease: 'none',
     repeat: -1,
@@ -221,11 +241,11 @@ function initMarquee() {
 
 /* ── LIGHTBOX ───────────────────────────────────────────────── */
 function initLightbox() {
-  const lightbox  = document.querySelector('.lightbox')
+  const lightbox = document.querySelector('.lightbox')
   if (!lightbox) return
-  const lbImg     = lightbox.querySelector('.lightbox-img')
-  const lbLabel   = lightbox.querySelector('.lightbox-label')
-  const lbClose   = lightbox.querySelector('.lightbox-close')
+  const lbImg      = lightbox.querySelector('.lightbox-img')
+  const lbLabel    = lightbox.querySelector('.lightbox-label')
+  const lbClose    = lightbox.querySelector('.lightbox-close')
   const lbBackdrop = lightbox.querySelector('.lightbox-backdrop')
 
   const open = (src, label) => {
@@ -256,7 +276,7 @@ function initLightbox() {
 /* ── SECTION HEADING REVEALS ────────────────────────────────── */
 function initSectionHeadings() {
   gsap.utils.toArray('.section-intro h2, .section-intro p, .page-hero h1, .page-hero p').forEach(el => {
-    if (el.closest('.hero')) return // skip hero (handled separately)
+    if (el.closest('.hero')) return
     gsap.fromTo(el,
       { opacity: 0, y: 30 },
       {
@@ -267,23 +287,36 @@ function initSectionHeadings() {
   })
 }
 
-/* ── MASTER INIT (runs on every page load/transition) ────────── */
+/* ── LAZY LOAD BELOW-FOLD IMAGES ────────────────────────────── */
+function initLazyImages() {
+  document.querySelectorAll('img').forEach(img => {
+    // Skip hero image and logo — they must load eagerly
+    if (img.closest('.hero-photo-col') || img.closest('.logo')) return
+    if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy')
+    if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async')
+  })
+}
+
+/* ── MASTER INIT (runs on every page load / Swup transition) ── */
 function initPage() {
-  initHeader()
-  initMobileNav()
-  setActiveNav()
+  setActiveNav()          // update active link on every navigation
   initScrollReveals()
   initImageReveals()
   initCinematicParallax()
-  initHeroParallax()
+  initHeroParallax()      // cleans up previous listener automatically
   initCounters()
-  initGalleryAnimations()
-  initMarquee()
+  initGalleryAnimations() // immediately hides items to prevent flash
+  initMarquee()           // kills previous tween before creating new one
   initLightbox()
   initSectionHeadings()
   initHeroAnimation()
+  initLazyImages()
   ScrollTrigger.refresh()
 }
 
 /* ── BOOT ───────────────────────────────────────────────────── */
+// Header & mobile nav target fixed elements OUTSIDE #swup —
+// run them once at boot only, never on page:view
+initHeader()
+initMobileNav()
 initPage()
