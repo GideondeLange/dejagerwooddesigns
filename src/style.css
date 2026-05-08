@@ -1270,8 +1270,8 @@ img[style*="zoom-in"] { cursor: zoom-in; }
 }
 
 /* ── 25. SWUP PAGE TRANSITIONS ──────────────────────────────── */
-html.is-animating .transition-fade { opacity: 0; transform: translateY(12px); }
-.transition-fade { transition: opacity 0.4s, transform 0.4s; }
+html.is-animating .transition-fade { opacity: 0; transform: translateY(6px); }
+.transition-fade { transition: opacity 0.2s, transform 0.2s; }
 
 /* ── 26. SCROLL REVEAL (initial hidden state) ───────────────── */
 .reveal {
