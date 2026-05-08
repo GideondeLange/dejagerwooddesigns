@@ -240,37 +240,88 @@ function initMarquee() {
 }
 
 /* ── LIGHTBOX ───────────────────────────────────────────────── */
+// Module-level state so open/close/back-button stay in sync across page views
+let _lbOpen         = false
+let _lbKeydown      = null
+let _lbPopstate     = null
+
 function initLightbox() {
-  const lightbox = document.querySelector('.lightbox')
+  const lightbox   = document.querySelector('.lightbox')
   if (!lightbox) return
   const lbImg      = lightbox.querySelector('.lightbox-img')
   const lbLabel    = lightbox.querySelector('.lightbox-label')
   const lbClose    = lightbox.querySelector('.lightbox-close')
   const lbBackdrop = lightbox.querySelector('.lightbox-backdrop')
 
+  /* open — pushes a history entry so the back button can close */
   const open = (src, label) => {
+    if (_lbOpen) return
+    _lbOpen = true
     lbImg.src = src
     lbImg.alt = label || ''
     if (lbLabel) lbLabel.textContent = label || ''
     lightbox.classList.add('open')
     document.body.style.overflow = 'hidden'
     lenis.stop()
+    history.pushState({ lightboxOpen: true }, '')
   }
 
+  /* close — called by popstate (back button) or close button */
   const close = () => {
+    if (!_lbOpen) return
+    _lbOpen = false
     lightbox.classList.remove('open')
     document.body.style.overflow = ''
     lenis.start()
     setTimeout(() => { lbImg.src = '' }, 400)
   }
 
+  /* handleClose — trigger via UI; go back in history so back button stays consistent */
+  const handleClose = () => {
+    if (_lbOpen) history.back()   // → fires popstate → close()
+  }
+
+  /* ── Document / window listeners — clean up before re-attaching ── */
+  if (_lbKeydown)  document.removeEventListener('keydown',  _lbKeydown)
+  if (_lbPopstate) window.removeEventListener('popstate', _lbPopstate)
+
+  _lbKeydown  = e => { if (e.key === 'Escape') handleClose() }
+  _lbPopstate = () => { if (_lbOpen) close() }
+
+  document.addEventListener('keydown',  _lbKeydown)
+  window.addEventListener('popstate',   _lbPopstate)
+
+  /* ── Close button & backdrop (persistent elements) ── */
+  if (!lightbox.dataset.lbInit) {
+    lightbox.dataset.lbInit = 'true'
+    lbClose?.addEventListener('click',    handleClose)
+    lbBackdrop?.addEventListener('click', handleClose)
+  }
+
+  /* ── Gallery items with explicit data-src ── */
   document.querySelectorAll('.gallery-masonry-item[data-src]').forEach(item => {
-    item.addEventListener('click', () => open(item.dataset.src, item.dataset.label))
+    item.addEventListener('click', () => open(item.dataset.src, item.dataset.label || ''))
   })
 
-  lbClose?.addEventListener('click', close)
-  lbBackdrop?.addEventListener('click', close)
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') close() })
+  /* ── ALL other content images — tap/click to zoom ── */
+  document.querySelectorAll('img').forEach(img => {
+    // Skip non-content images
+    if (
+      img.closest('.logo')                  ||  // logo
+      img.closest('.site-header')           ||  // header icons
+      img.closest('.lightbox')              ||  // the lightbox img itself
+      img.closest('.gallery-masonry-item')  ||  // already handled above
+      img.closest('.whatsapp-fab')          ||  // fab icon
+      !img.src || img.src.startsWith('data:')   // empty / inline SVG
+    ) return
+
+    img.style.cursor = 'zoom-in'
+    img.addEventListener('click', () => {
+      // Prefer a high-res data-src if available, fallback to rendered src
+      const src = img.dataset.src || img.src
+      open(src, img.alt || img.dataset.label || '')
+    })
+  })
 }
 
 /* ── SECTION HEADING REVEALS ────────────────────────────────── */
