@@ -31,13 +31,20 @@ const swup = new Swup({
   animationSelector: '[class*="transition-"]',
 })
 
+// page:view: runs right after new content is inserted (before fade-in starts)
 swup.hooks.on('page:view', () => {
   lenis.scrollTo(0, { immediate: true })
   ScrollTrigger.getAll().forEach(st => st.kill())
   initPage()
 })
 
-/* ── HEADER SCROLL STATE (init once — header is outside #swup) ── */
+// animation:in:end: runs after Swup's fade-in is fully done.
+// Only refresh ScrollTrigger HERE — DOM positions are now stable & correct.
+swup.hooks.on('animation:in:end', () => {
+  ScrollTrigger.refresh()
+})
+
+/* ── HEADER SCROLL STATE (init once — outside #swup) ────────── */
 function initHeader() {
   const header = document.querySelector('.site-header')
   if (!header || header.dataset.headerInit) return
@@ -47,7 +54,7 @@ function initHeader() {
   window.addEventListener('scroll', toggle, { passive: true })
 }
 
-/* ── MOBILE NAV (init once — nav drawer is outside #swup) ───── */
+/* ── MOBILE NAV (init once — outside #swup) ─────────────────── */
 function initMobileNav() {
   const hamburger = document.querySelector('.hamburger')
   const mobileNav = document.querySelector('.mobile-nav')
@@ -60,7 +67,6 @@ function initMobileNav() {
     document.body.style.overflow = isOpen ? 'hidden' : ''
   })
 
-  // Close drawer when any nav link is clicked (Swup handles the navigation)
   mobileNav.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       hamburger.classList.remove('open')
@@ -156,11 +162,9 @@ function initCinematicParallax() {
 }
 
 /* ── HERO PHOTO PARALLAX (desktop only) ─────────────────────── */
-// Store the handler so we can remove it before re-attaching on page revisit
 let _heroParallaxHandler = null
 
 function initHeroParallax() {
-  // Always remove old handler first (prevents stacking on page:view)
   if (_heroParallaxHandler) {
     window.removeEventListener('scroll', _heroParallaxHandler)
     _heroParallaxHandler = null
@@ -189,34 +193,39 @@ function initCounters() {
     if (isNaN(target)) return
     const obj = { val: 0 }
     gsap.to(obj, {
-      val: target,
-      duration: 1.8,
-      ease: 'power2.out',
-      onUpdate() {
-        el.textContent = Math.round(obj.val) + (el.dataset.suffix || '')
-      },
+      val: target, duration: 1.8, ease: 'power2.out',
+      onUpdate() { el.textContent = Math.round(obj.val) + (el.dataset.suffix || '') },
       scrollTrigger: { trigger: el, start: 'top 85%', once: true }
     })
   })
 }
 
-/* ── GALLERY MASONRY STAGGER ────────────────────────────────── */
+/* ── GALLERY MASONRY ────────────────────────────────────────── */
+// NO ScrollTrigger here — ScrollTrigger + Swup page transitions have a
+// timing conflict: refresh() runs before the fade-in completes, so
+// item positions are measured with a transform offset and some items
+// never trigger. Simple timed stagger is 100% reliable.
+let _galleryTween = null
+
 function initGalleryAnimations() {
   const items = gsap.utils.toArray('.gallery-masonry-item')
   if (!items.length) return
 
-  // Immediately hide all items — prevents the flash where items are visible
-  // for the brief moment between Swup inserting content and GSAP running
-  gsap.set(items, { opacity: 0, y: 32, scale: 0.97 })
+  // Kill any previous gallery tween
+  if (_galleryTween) { _galleryTween.kill(); _galleryTween = null }
 
-  items.forEach(item => {
-    gsap.fromTo(item,
-      { opacity: 0, y: 32, scale: 0.97 },
-      {
-        opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'power3.out',
-        scrollTrigger: { trigger: item, start: 'top 94%', once: true }
-      }
-    )
+  // Hide immediately via GSAP (CSS also hides them as a backstop)
+  gsap.set(items, { opacity: 0, y: 20 })
+
+  // Stagger in — delay 0.25s so Swup's 0.2s fade-in finishes first
+  _galleryTween = gsap.to(items, {
+    opacity: 1,
+    y: 0,
+    duration: 0.45,
+    stagger: { each: 0.035, from: 'start' },
+    ease: 'power2.out',
+    delay: 0.25,
+    clearProps: 'y',   // clean up transform after animation
   })
 }
 
@@ -226,24 +235,17 @@ let _marqueeTween = null
 function initMarquee() {
   const inner = document.querySelector('.marquee-inner')
   if (!inner) return
-  // Kill previous tween before creating a new one (prevents stacking)
   if (_marqueeTween) { _marqueeTween.kill(); _marqueeTween = null }
   _marqueeTween = gsap.to(inner, {
-    xPercent: -50,
-    ease: 'none',
-    repeat: -1,
-    duration: 28,
-    modifiers: {
-      xPercent: gsap.utils.unitize(x => parseFloat(x) % -50)
-    }
+    xPercent: -50, ease: 'none', repeat: -1, duration: 28,
+    modifiers: { xPercent: gsap.utils.unitize(x => parseFloat(x) % -50) }
   })
 }
 
 /* ── LIGHTBOX ───────────────────────────────────────────────── */
-// Module-level state so open/close/back-button stay in sync across page views
-let _lbOpen         = false
-let _lbKeydown      = null
-let _lbPopstate     = null
+let _lbOpen     = false
+let _lbKeydown  = null
+let _lbPopstate = null
 
 function initLightbox() {
   const lightbox   = document.querySelector('.lightbox')
@@ -253,7 +255,6 @@ function initLightbox() {
   const lbClose    = lightbox.querySelector('.lightbox-close')
   const lbBackdrop = lightbox.querySelector('.lightbox-backdrop')
 
-  /* open — pushes a history entry so the back button can close */
   const open = (src, label) => {
     if (_lbOpen) return
     _lbOpen = true
@@ -266,7 +267,6 @@ function initLightbox() {
     history.pushState({ lightboxOpen: true }, '')
   }
 
-  /* close — called by popstate (back button) or close button */
   const close = () => {
     if (!_lbOpen) return
     _lbOpen = false
@@ -276,12 +276,8 @@ function initLightbox() {
     setTimeout(() => { lbImg.src = '' }, 400)
   }
 
-  /* handleClose — trigger via UI; go back in history so back button stays consistent */
-  const handleClose = () => {
-    if (_lbOpen) history.back()   // → fires popstate → close()
-  }
+  const handleClose = () => { if (_lbOpen) history.back() }
 
-  /* ── Document / window listeners — clean up before re-attaching ── */
   if (_lbKeydown)  document.removeEventListener('keydown',  _lbKeydown)
   if (_lbPopstate) window.removeEventListener('popstate', _lbPopstate)
 
@@ -291,36 +287,27 @@ function initLightbox() {
   document.addEventListener('keydown',  _lbKeydown)
   window.addEventListener('popstate',   _lbPopstate)
 
-  /* ── Close button & backdrop (persistent elements) ── */
   if (!lightbox.dataset.lbInit) {
     lightbox.dataset.lbInit = 'true'
     lbClose?.addEventListener('click',    handleClose)
     lbBackdrop?.addEventListener('click', handleClose)
   }
 
-  /* ── Gallery items with explicit data-src ── */
   document.querySelectorAll('.gallery-masonry-item[data-src]').forEach(item => {
     item.addEventListener('click', () => open(item.dataset.src, item.dataset.label || ''))
   })
 
-  /* ── ALL other content images — tap/click to zoom ── */
   document.querySelectorAll('img').forEach(img => {
-    // Skip non-content images
     if (
-      img.closest('.logo')                  ||  // logo
-      img.closest('.site-header')           ||  // header icons
-      img.closest('.lightbox')              ||  // the lightbox img itself
-      img.closest('.gallery-masonry-item')  ||  // already handled above
-      img.closest('.whatsapp-fab')          ||  // fab icon
-      !img.src || img.src.startsWith('data:')   // empty / inline SVG
+      img.closest('.logo')                 ||
+      img.closest('.site-header')          ||
+      img.closest('.lightbox')             ||
+      img.closest('.gallery-masonry-item') ||
+      img.closest('.whatsapp-fab')         ||
+      !img.src || img.src.startsWith('data:')
     ) return
-
     img.style.cursor = 'zoom-in'
-    img.addEventListener('click', () => {
-      // Prefer a high-res data-src if available, fallback to rendered src
-      const src = img.dataset.src || img.src
-      open(src, img.alt || img.dataset.label || '')
-    })
+    img.addEventListener('click', () => open(img.dataset.src || img.src, img.alt || ''))
   })
 }
 
@@ -341,33 +328,35 @@ function initSectionHeadings() {
 /* ── LAZY LOAD BELOW-FOLD IMAGES ────────────────────────────── */
 function initLazyImages() {
   document.querySelectorAll('img').forEach(img => {
-    // Skip hero image and logo — they must load eagerly
     if (img.closest('.hero-photo-col') || img.closest('.logo')) return
     if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy')
     if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async')
   })
 }
 
-/* ── MASTER INIT (runs on every page load / Swup transition) ── */
+/* ── MASTER INIT (every page load / Swup transition) ─────────── */
+// NOTE: ScrollTrigger.refresh() is NOT called here.
+// On Swup navigation it runs via animation:in:end (after fade-in completes).
+// On initial load it runs via requestAnimationFrame below.
 function initPage() {
-  setActiveNav()          // update active link on every navigation
+  setActiveNav()
   initScrollReveals()
   initImageReveals()
   initCinematicParallax()
-  initHeroParallax()      // cleans up previous listener automatically
+  initHeroParallax()
   initCounters()
-  initGalleryAnimations() // immediately hides items to prevent flash
-  initMarquee()           // kills previous tween before creating new one
+  initGalleryAnimations()
+  initMarquee()
   initLightbox()
   initSectionHeadings()
   initHeroAnimation()
   initLazyImages()
-  ScrollTrigger.refresh()
 }
 
 /* ── BOOT ───────────────────────────────────────────────────── */
-// Header & mobile nav target fixed elements OUTSIDE #swup —
-// run them once at boot only, never on page:view
 initHeader()
 initMobileNav()
 initPage()
+// Refresh ScrollTrigger after first paint on initial load
+// (equivalent to animation:in:end for Swup navigations)
+requestAnimationFrame(() => ScrollTrigger.refresh())
