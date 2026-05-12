@@ -694,34 +694,36 @@ p  { font-size: clamp(0.95rem, 1.5vw, 1.05rem); }
   padding-block: var(--section-py);
   background: var(--clr-bg-surface);
 }
-/* Uniform-tile grid (replaces former CSS-columns masonry).
-   Each item is a fixed square slot; images are cropped center
-   with object-fit: cover. Per-page column counts are set below
-   (.gallery-home → 3 cols; .gallery-full → 4 cols). */
+/* True masonry via CSS columns. Each item keeps its natural aspect
+   ratio; columns flow top-down and pack tightly with no gaps.
+   Per-page column counts set below (home preview → 3, full gallery → 4).
+   Stable now because every <img> has explicit width/height attrs (no
+   layout reflow on load) and gallery imgs are eager-loaded + preloaded
+   on home page (no staggered pop-in). */
 .gallery-masonry {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
+  columns: 4;
+  column-gap: 1.25rem;
   margin-top: 3rem;
 }
 .gallery-masonry-item {
-  aspect-ratio: 1 / 1;
+  break-inside: avoid;
+  margin-bottom: 1.25rem;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   position: relative;
+  display: block;
 }
 .gallery-masonry-item img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
   display: block;
   transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
 }
-/* Home preview: 6 items → 3-col grid renders a tidy 2×3 */
-.gallery-home .gallery-masonry { grid-template-columns: repeat(3, 1fr); }
-/* Full gallery page: 4-col grid renders a dense portfolio wall */
-.gallery-full .gallery-masonry { grid-template-columns: repeat(4, 1fr); }
+/* Home preview: 6 items in 3 columns → balanced 2 rows of 3 */
+.gallery-home .gallery-masonry { columns: 3; }
+/* Full gallery: denser 4-column portfolio wall */
+.gallery-full .gallery-masonry { columns: 4; }
 .gallery-masonry-item:hover img { transform: scale(1.06); }
 .gallery-item-overlay {
   position: absolute;
@@ -1314,7 +1316,7 @@ html.is-animating .transition-fade { opacity: 0; }
   .services-full-grid { grid-template-columns: 1fr; }
   .specialist-grid { grid-template-columns: 1fr; }
   .gallery-home .gallery-masonry,
-  .gallery-full .gallery-masonry { grid-template-columns: repeat(3, 1fr); }
+  .gallery-full .gallery-masonry { columns: 3; }
   .cinematic-pair { grid-template-columns: 1fr; height: auto; }
   .cinematic-pair-item { height: 55vw; }
   .resin-tables-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1344,7 +1346,8 @@ html.is-animating .transition-fade { opacity: 0; }
   .why-us-grid { grid-template-columns: 1fr; }
   .epoxy-showcase-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-home .gallery-masonry,
-  .gallery-full .gallery-masonry { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .gallery-full .gallery-masonry { columns: 2; column-gap: 0.75rem; }
+  .gallery-masonry-item { margin-bottom: 0.75rem; }
   .footer-grid { grid-template-columns: 1fr; gap: 2.5rem; }
   .footer-bottom { flex-direction: column; text-align: center; }
   .cta-btns { flex-direction: column; align-items: center; }
