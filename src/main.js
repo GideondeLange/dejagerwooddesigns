@@ -201,10 +201,13 @@ function initCounters() {
 }
 
 /* ── GALLERY MASONRY ────────────────────────────────────────── */
-// NO ScrollTrigger here — ScrollTrigger + Swup page transitions have a
-// timing conflict: refresh() runs before the fade-in completes, so
-// item positions are measured with a transform offset and some items
-// never trigger. Simple timed stagger is 100% reliable.
+// Why a flat timed stagger instead of ScrollTrigger:
+//   - ScrollTrigger.refresh() during a Swup transition measures item
+//     positions while the fade-in transform is still applied, so some
+//     items never trigger.
+//   - The image dimensions are now baked into each <img> as width/height
+//     attrs, so layout no longer reflows as JPEGs arrive — that means
+//     a simple timed stagger is reliable and produces no glitch.
 let _galleryTween = null
 
 function initGalleryAnimations() {

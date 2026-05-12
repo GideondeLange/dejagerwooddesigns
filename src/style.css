@@ -1263,10 +1263,14 @@ img[style*="zoom-in"] { cursor: zoom-in; }
   margin-top: 3.5rem;
 }
 
-/* Pre-hide gallery items via CSS so there is ZERO flash before GSAP runs.
-   initGalleryAnimations() always animates them back to opacity:1. */
+/* Layout reflow is prevented by the explicit width/height attrs on
+   each <img>. The opacity:0 below is a 1-frame guard against a flash
+   before GSAP's stagger-in runs (see initGalleryAnimations). */
 .gallery-masonry-item {
   opacity: 0;
+}
+.gallery-masonry-item img {
+  background: var(--clr-bg-base);
 }
 
 /* ── 25. SWUP PAGE TRANSITIONS ──────────────────────────────── */
