@@ -3,7 +3,7 @@
 
   <url>
     <loc>https://dejagerwooddesigns.co.za/</loc>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -52,9 +52,16 @@
 
   <url>
     <loc>https://dejagerwooddesigns.co.za/about/</loc>
-    <lastmod>2026-05-12</lastmod>
+    <lastmod>2026-05-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://dejagerwooddesigns.co.za/wood-species/</loc>
+    <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 
   <url>
@@ -62,6 +69,20 @@
     <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://dejagerwooddesigns.co.za/blog/wildebeest-gunroom/</loc>
+    <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://dejagerwooddesigns.co.za/blog/wildebeest-countertop/</loc>
+    <lastmod>2026-05-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 
 </urlset>
