@@ -278,6 +278,64 @@ p  { font-size: clamp(0.95rem, 1.5vw, 1.05rem); }
 .hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
 .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
+/* Desktop Dropdown */
+.nav-dropdown {
+  position: relative;
+}
+.nav-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.nav-arrow {
+  transition: transform 0.25s;
+  flex-shrink: 0;
+}
+.nav-dropdown.open .nav-arrow {
+  transform: rotate(180deg);
+}
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: rgba(12, 15, 24, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--clr-border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+}
+.nav-dropdown.open .nav-dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+  transform: translateX(-50%) translateY(0);
+}
+.nav-dropdown-menu .nav-link {
+  padding: 0.5rem 0.75rem;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.nav-dropdown-menu .nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+.nav-dropdown-menu .nav-link::after {
+  display: none;
+}
+
 /* Mobile nav drawer */
 .mobile-nav {
   position: fixed;
@@ -307,6 +365,44 @@ p  { font-size: clamp(0.95rem, 1.5vw, 1.05rem); }
 }
 .mobile-nav .nav-cta {
   width: fit-content;
+}
+
+/* Mobile nav accordion */
+.mobile-nav-group {
+  display: flex;
+  flex-direction: column;
+}
+.mobile-nav-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  padding: 0;
+}
+.mobile-nav-toggle .nav-arrow {
+  margin-left: auto;
+  transition: transform 0.3s;
+}
+.mobile-nav-group.open .mobile-nav-toggle .nav-arrow {
+  transform: rotate(180deg);
+}
+.mobile-nav-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-left: 1rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding-top 0.35s;
+}
+.mobile-nav-group.open .mobile-nav-sub {
+  max-height: 200px;
+  padding-top: 0.75rem;
 }
 
 /* ── 8. HERO ────────────────────────────────────────────────── */

@@ -54,6 +54,35 @@ function initHeader() {
   window.addEventListener('scroll', toggle, { passive: true })
 }
 
+/* ── DESKTOP DROPDOWNS (init once — outside #swup) ──────────── */
+function initDropdowns() {
+  const dropdowns = document.querySelectorAll('.nav-dropdown')
+  if (!dropdowns.length || document.body.dataset.dropdownInit) return
+  document.body.dataset.dropdownInit = 'true'
+
+  dropdowns.forEach(dd => {
+    const trigger = dd.querySelector('.nav-dropdown-trigger')
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation()
+      const isOpen = dd.classList.toggle('open')
+      trigger.setAttribute('aria-expanded', isOpen)
+      dropdowns.forEach(other => {
+        if (other !== dd) {
+          other.classList.remove('open')
+          other.querySelector('.nav-dropdown-trigger').setAttribute('aria-expanded', 'false')
+        }
+      })
+    })
+  })
+
+  document.addEventListener('click', () => {
+    dropdowns.forEach(dd => {
+      dd.classList.remove('open')
+      dd.querySelector('.nav-dropdown-trigger').setAttribute('aria-expanded', 'false')
+    })
+  })
+}
+
 /* ── MOBILE NAV (init once — outside #swup) ─────────────────── */
 function initMobileNav() {
   const hamburger = document.querySelector('.hamburger')
@@ -67,6 +96,16 @@ function initMobileNav() {
     document.body.style.overflow = isOpen ? 'hidden' : ''
   })
 
+  // Accordion toggles
+  mobileNav.querySelectorAll('.mobile-nav-toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+      const group = toggle.closest('.mobile-nav-group')
+      const isOpen = group.classList.toggle('open')
+      toggle.setAttribute('aria-expanded', isOpen)
+    })
+  })
+
+  // Close drawer on link click (not on accordion toggle buttons)
   mobileNav.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       hamburger.classList.remove('open')
@@ -82,6 +121,15 @@ function setActiveNav() {
   document.querySelectorAll('.nav-link').forEach(link => {
     const href = link.getAttribute('href')?.replace(/\/$/, '') || ''
     link.classList.toggle('active', href === path || (path === '' && href === '/'))
+  })
+  // Highlight dropdown trigger when a child page is active
+  document.querySelectorAll('.nav-dropdown').forEach(dd => {
+    const hasActiveChild = dd.querySelector('.nav-link.active')
+    dd.querySelector('.nav-dropdown-trigger')?.classList.toggle('active', !!hasActiveChild)
+  })
+  document.querySelectorAll('.mobile-nav-group').forEach(group => {
+    const hasActiveChild = group.querySelector('.nav-link.active')
+    group.querySelector('.mobile-nav-toggle')?.classList.toggle('active', !!hasActiveChild)
   })
 }
 
@@ -358,6 +406,7 @@ function initPage() {
 
 /* ── BOOT ───────────────────────────────────────────────────── */
 initHeader()
+initDropdowns()
 initMobileNav()
 initPage()
 // Refresh ScrollTrigger after first paint on initial load

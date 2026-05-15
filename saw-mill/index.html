@@ -46,15 +46,26 @@
       <nav class="site-nav" aria-label="Main navigation">
         <a href="/" class="nav-link">Home</a>
         <a href="/about/" class="nav-link">About</a>
-        <a href="/resin-tables/" class="nav-link">Resin Tables</a>
-        <a href="/saw-mill/" class="nav-link">Saw Mill</a>
-        <a href="/wood-species/" class="nav-link">Wood Species</a>
-        <a href="/custom-orders/" class="nav-link">Custom Orders</a>
-        <a href="/services/" class="nav-link">Services</a>
+        <div class="nav-dropdown">
+          <button class="nav-link nav-dropdown-trigger" aria-expanded="false">Products <svg class="nav-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="nav-dropdown-menu">
+            <a href="/resin-tables/" class="nav-link">Resin Tables</a>
+            <a href="/custom-orders/" class="nav-link">Custom Orders</a>
+            <a href="/services/" class="nav-link">Services</a>
+          </div>
+        </div>
+        <div class="nav-dropdown">
+          <button class="nav-link nav-dropdown-trigger" aria-expanded="false">Workshop <svg class="nav-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="nav-dropdown-menu">
+            <a href="/saw-mill/" class="nav-link">Saw Mill</a>
+            <a href="/wood-species/" class="nav-link">Wood Species</a>
+          </div>
+        </div>
         <a href="/gallery/" class="nav-link">Gallery</a>
         <a href="/contact/" class="nav-link">Contact</a>
-        <a href="https://wa.me/27814213410?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20hardwood%20slabs%20from%20the%20saw%20mill"
-           target="_blank" rel="noopener" class="nav-link nav-cta btn-primary">WhatsApp Us</a>
+        <a href="https://wa.me/27814213410?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20a%20custom%20wood%20piece"
+           target="_blank" rel="noopener"
+           class="nav-link nav-cta btn-primary">WhatsApp Us</a>
       </nav>
       <button class="hamburger" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
@@ -62,16 +73,27 @@
 
   <nav class="mobile-nav" aria-label="Mobile navigation">
     <a href="/" class="nav-link">Home</a>
-        <a href="/about/" class="nav-link">About</a>
-    <a href="/resin-tables/" class="nav-link">Resin Tables</a>
-    <a href="/saw-mill/" class="nav-link">Saw Mill</a>
-        <a href="/wood-species/" class="nav-link">Wood Species</a>
+    <a href="/about/" class="nav-link">About</a>
+    <div class="mobile-nav-group">
+      <button class="nav-link mobile-nav-toggle" aria-expanded="false">Products <svg class="nav-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="mobile-nav-sub">
+        <a href="/resin-tables/" class="nav-link">Resin Tables</a>
         <a href="/custom-orders/" class="nav-link">Custom Orders</a>
-    <a href="/services/" class="nav-link">Services</a>
+        <a href="/services/" class="nav-link">Services</a>
+      </div>
+    </div>
+    <div class="mobile-nav-group">
+      <button class="nav-link mobile-nav-toggle" aria-expanded="false">Workshop <svg class="nav-arrow" width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="mobile-nav-sub">
+        <a href="/saw-mill/" class="nav-link">Saw Mill</a>
+        <a href="/wood-species/" class="nav-link">Wood Species</a>
+      </div>
+    </div>
     <a href="/gallery/" class="nav-link">Gallery</a>
-        <a href="/contact/" class="nav-link">Contact</a>
-    <a href="https://wa.me/27814213410?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20hardwood%20slabs%20from%20the%20saw%20mill"
-       target="_blank" rel="noopener" class="nav-link nav-cta btn-primary">WhatsApp Us</a>
+    <a href="/contact/" class="nav-link">Contact</a>
+    <a href="https://wa.me/27814213410?text=Hi%2C%20I%27d%20like%20to%20enquire%20about%20a%20custom%20wood%20piece"
+       target="_blank" rel="noopener"
+       class="nav-link nav-cta btn-primary">WhatsApp Us</a>
   </nav>
 
   <div id="swup" class="transition-fade">
