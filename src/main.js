@@ -155,25 +155,28 @@ function initHeroAnimation() {
 
 /* ── SCROLL REVEALS ─────────────────────────────────────────── */
 function initScrollReveals() {
+  const vh = window.innerHeight
   gsap.utils.toArray('.reveal').forEach(el => {
+    const inView = el.getBoundingClientRect().top < vh * 0.95
     gsap.fromTo(el,
       { opacity: 0, y: 44 },
-      {
-        opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', once: true }
-      }
+      inView
+        ? { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.1 }
+        : { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true } }
     )
   })
 
   gsap.utils.toArray('.reveal-group').forEach(group => {
     const items = group.querySelectorAll('.glass-card, .process-step, .stat-item, .why-card, .specialist-card')
     if (!items.length) return
+    const inView = group.getBoundingClientRect().top < vh * 0.95
     gsap.fromTo(items,
       { opacity: 0, y: 44 },
-      {
-        opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.11,
-        scrollTrigger: { trigger: group, start: 'top 85%', once: true }
-      }
+      inView
+        ? { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.11, delay: 0.1 }
+        : { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.11,
+            scrollTrigger: { trigger: group, start: 'top 85%', once: true } }
     )
   })
 }
