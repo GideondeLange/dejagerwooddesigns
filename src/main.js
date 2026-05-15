@@ -404,6 +404,18 @@ function initPage() {
   initLazyImages()
 }
 
+/* ── WHATSAPP CLICK TRACKING ────────────────────────────────── */
+document.addEventListener('click', e => {
+  const link = e.target.closest('a[href*="wa.me"]')
+  if (!link) return
+  if (typeof gtag === 'function') {
+    gtag('event', 'whatsapp_click', {
+      event_category: 'engagement',
+      event_label: link.href
+    })
+  }
+})
+
 /* ── BOOT ───────────────────────────────────────────────────── */
 initHeader()
 initDropdowns()
