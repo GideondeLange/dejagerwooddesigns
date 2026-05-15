@@ -153,16 +153,31 @@
     <!-- PHOTO GRID -->
     <section class="section-py">
       <div class="container">
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
-          <img src="/assets/gunroom/gunroom-01.jpg"
-               alt="Live edge hardwood detail moody close-up custom gun room Gauteng — De Jager Wood Designs"
-               style="width:100%;height:320px;object-fit:cover;border-radius:8px;" />
-          <img src="/assets/gunroom/gunroom-02.jpg"
-               alt="Stacked red hardwood slabs saw mill Benoni South Africa — De Jager Wood Designs"
-               style="width:100%;height:320px;object-fit:cover;border-radius:8px;" />
-          <img src="/assets/gunroom/gunroom-04.jpg"
-               alt="Custom bar counter hardwood gun room Gauteng moody interior — De Jager Wood Designs"
-               style="width:100%;height:420px;object-fit:cover;border-radius:8px;grid-column:1/-1;" />
+        <div class="gallery-masonry" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));">
+          <div class="gallery-masonry-item" data-src="/assets/gunroom/gunroom-01.jpg" data-label="Live Edge Detail — Wildebeest Gun Room">
+            <img src="/assets/gunroom/gunroom-01.jpg"
+                 alt="Live edge hardwood detail moody close-up custom gun room Gauteng — De Jager Wood Designs"
+                 loading="lazy" />
+            <div class="gallery-item-overlay"><span class="zoom-icon"></span></div>
+          </div>
+          <div class="gallery-masonry-item" data-src="/assets/gunroom/gunroom-02.jpg" data-label="Hardwood Slabs — De Jager Saw Mill Benoni">
+            <img src="/assets/gunroom/gunroom-02.jpg"
+                 alt="Stacked red hardwood slabs saw mill Benoni South Africa — De Jager Wood Designs"
+                 loading="lazy" />
+            <div class="gallery-item-overlay"><span class="zoom-icon"></span></div>
+          </div>
+          <div class="gallery-masonry-item" data-src="/assets/gunroom/gunroom-03.jpg" data-label="Custom Bar Counter — Wildebeest Gun Room">
+            <img src="/assets/gunroom/gunroom-03.jpg"
+                 alt="Custom hardwood bar counter gun room Gauteng — De Jager Wood Designs"
+                 loading="lazy" />
+            <div class="gallery-item-overlay"><span class="zoom-icon"></span></div>
+          </div>
+          <div class="gallery-masonry-item" data-src="/assets/gunroom/gunroom-04.jpg" data-label="Gun Room Interior — Moody Finish">
+            <img src="/assets/gunroom/gunroom-04.jpg"
+                 alt="Custom bar counter hardwood gun room Gauteng moody interior — De Jager Wood Designs"
+                 loading="lazy" />
+            <div class="gallery-item-overlay"><span class="zoom-icon"></span></div>
+          </div>
         </div>
       </div>
     </section>
