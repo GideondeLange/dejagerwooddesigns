@@ -14,6 +14,7 @@ export default defineConfig({
         customOrders: resolve(__dirname, 'custom-orders/index.html'),
         about:        resolve(__dirname, 'about/index.html'),
         contact:      resolve(__dirname, 'contact/index.html'),
+        blog:             resolve(__dirname, 'blog/index.html'),
         blogGunroom:      resolve(__dirname, 'blog/wildebeest-gunroom/index.html'),
         blogCountertop:   resolve(__dirname, 'blog/wildebeest-countertop/index.html'),
       }
