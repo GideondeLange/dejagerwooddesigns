@@ -369,6 +369,7 @@ function initLightbox() {
 function initSectionHeadings() {
   gsap.utils.toArray('.section-intro h2, .section-intro p, .page-hero h1, .page-hero p').forEach(el => {
     if (el.closest('.hero')) return
+    if (el.classList.contains('reveal')) return
     gsap.fromTo(el,
       { opacity: 0, y: 30 },
       {
